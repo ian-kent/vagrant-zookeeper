@@ -1,7 +1,7 @@
-Ubuntu ZooKeeper with Serf
+Apache ZooKeeper with Serf
 ==========================
 
-Vagrant build for Ubuntu with Serf
+Vagrant build for Ubuntu with Apache ZooKeeper and Serf
 
 Requires Vagrant v2 - http://www.vagrantup.com/
 

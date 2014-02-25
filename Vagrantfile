@@ -1,6 +1,9 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+require './lib/gen_node_infos'
+require './lib/predicates'
+
 ## vagrant plugins required:
 # vagrant-berkshelf, vagrant-omnibus, vagrant-hosts, vagrant-cachier
 
@@ -53,7 +56,8 @@ Vagrant.configure("2") do |config|
     sudo chmod 755 /tmp/zookeeper
     sudo chown zookeeper /tmp/zookeeper
     sudo -u zookeeper echo #{ENV['ZK_ID']} > /tmp/zookeeper/myid
-    sudo -u zookeeper /opt/chef/embedded/bin/ruby /vagrant/scripts/gen_zoo_conf.rb > /etc/zookeeper/conf/zoo.cfg
+    #sudo -u zookeeper /opt/chef/embedded/bin/ruby /vagrant/script/gen_zoo_conf.rb > /etc/zookeeper/conf/zoo.cfg
+    cp /vagrant/zoo.cfg /etc/zookeeper/conf/zoo.cfg
     sudo restart zookeeper
 SCRIPT
 
@@ -65,7 +69,8 @@ $script = <<SCRIPT
   wget https://raw.github.com/hashicorp/serf/c15b5f15dec3d735dae1a6d1f3455d4d7b5685e7/ops-misc/upstart.conf
   mv upstart.conf /etc/init/serf-agent.conf
   mkdir /etc/serf
-  echo "{ \"start_join\": [\"$1\"], \"protocol\": 3 }" | tee /etc/serf/config.json
+  ip=`ip addr list eth1 | grep "inet " | cut -d ' ' -f6 | cut -d/ -f1`
+  echo { \\"protocol\\": 3, \\"tags\\": { \\"role\\": \\"zookeeper\\" }, \\"advertise\\": \\"$ip\\" } | tee /etc/serf/config.json
   exec start serf-agent
 SCRIPT
   config.vm.provision "shell", inline: $script
